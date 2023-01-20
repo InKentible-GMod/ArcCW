@@ -630,63 +630,107 @@ function SWEP:GetActiveElements(recache)
     if ArcCW.Overflow and self.ActiveElementCache then return self.ActiveElementCache end
 
     local eles = {}
+    local elesLen = 0
 
-    for _, i in pairs(self.Attachments) do
-        if !i.Installed then
-            if i.DefaultEles then
-                table.Add(eles, i.DefaultEles)
+    for _, i in ipairs(self.Attachments) do
+        if not i.Installed then
+            local defaultEles = i.DefaultEles
+            if defaultEles then                
+                local defaultElesLen = #defaultEles
+    
+                for i = 1, defaultElesLen do
+                    eles[elesLen + i] = defaultEles[i]
+                end
+                elesLen = elesLen + defaultElesLen
             end
             continue
         end
 
+        local installedEles = i.InstalledEles
         if i.InstalledEles and i.Installed != i.EmptyFallback then
-            table.Add(eles, i.InstalledEles)
+            local installedElesLen = #installedEles
+
+            for i = 1, installedElesLen do
+                eles[elesLen + i] = installedEles[i]
+            end
+            elesLen = elesLen + installedElesLen
         end
 
         local atttbl = ArcCW.AttachmentTable[i.Installed]
 
-        if atttbl.ActivateElements then
-            table.Add(eles, atttbl.ActivateElements)
+        local activateElements = atttbl.ActivateElements
+        if activateElements then
+            local activateElementsLen = #activateElements
+
+            for i = 1, activateElementsLen do
+                eles[elesLen + i] = activateElements[i]
+            end
+            elesLen = elesLen + activateElementsLen
         end
 
         local num = i.ToggleNum or 1
-        if atttbl.ToggleStats and atttbl.ToggleStats[num] and (atttbl.ToggleStats[num]["ActivateElements"] != nil) then
-            table.Add(eles, atttbl.ToggleStats[num]["ActivateElements"])
-            --atttbl.ToggleStats[num][buff]
+        local toggleStats = atttbl.ToggleStats
+        if toggleStats then
+            local toggleStatsNum = atttbl.ToggleStats[num]
+            if toggleStatsNum and toggleStatsNum.ActivateElements ~= nil then
+                local statsActivateElements = toggleStatsNum.ActivateElements
+                local statsActivateElementsLen = #activateElements
+    
+                for i = 1, statsActivateElementsLen do
+                    eles[elesLen + i] = statsActivateElements[i]
+                end
+                elesLen = elesLen + statsActivateElementsLen
+            end
         end
 
         local slots = atttbl.Slot
 
         if isstring(slots) then
-            slots = {slots}
+            elesLen = elesLen + 1
+            eles[elesLen] = slots
         end
 
-        table.Add(eles, slots or {})
-
-        table.insert(eles, i.Installed)
+        elesLen = elesLen + 1
+        eles[elesLen] = i.Installed
     end
 
-    table.Add(eles, self.DefaultElements)
+    local defaultElements = self.DefaultElements
+    local defaultElementsLen = #defaultElements
+
+    for i = 1, defaultElementsLen do
+        eles[elesLen + i] = defaultElements[i]
+    end
+    elesLen = elesLen + defaultElementsLen
 
     local mode = self:GetCurrentFiremode()
-    table.Add(eles, (mode or {}).ActivateElements or {})
+    if mode and mode.ActivateElements then
+        local activateElements = mode.ActivateElements
+        local activateElementsLen = #activateElements
+
+        for i = 1, activateElementsLen do
+            eles[elesLen + i] = activateElements[i]
+        end
+        elesLen = elesLen + activateElementsLen
+    end
 
     local eles2 = {}
+    local eles2Len = 0
 
     ArcCW.Overflow = true
 
-    for f, i in pairs(eles) do
-        local e = self.AttachmentElements[i]
+    local attachmentElements = self.AttachmentElements
+    for f = 1, elesLen do
+        local elesElement = eles[f]
+        local e = attachmentElements[elesElement]
 
-        if !e then continue end
-
-        if !self:CheckFlags(e.ExcludeFlags, e.RequireFlags) then continue end
+        if not e then continue end
+        if not self:CheckFlags(e.ExcludeFlags, e.RequireFlags) then continue end
 
         local a = false
         local c = 0
 
-        for g = f, table.Count(eles) do
-            if eles[g] == i then c = c + 1 end
+        for g = f, elesLen do
+            if eles[g] == elesElement then c = c + 1 end
             if a then continue end
 
             if c > 1 then a = true end
@@ -694,15 +738,19 @@ function SWEP:GetActiveElements(recache)
 
         if a then continue end
 
-        table.insert(eles2, i)
+        eles2Len = eles2Len + 1
+        eles2[eles2Len] = elesElement
     end
 
-    table.Add(eles2, self:GetWeaponFlags())
+    local flags = self:GetWeaponFlags()
+    local flagsLen = #flags
+    for i = 1, flagsLen do
+        eles2[eles2Len + i] = flags[i]
+    end
+    eles2Len = eles2Len + flagsLen
 
     ArcCW.Overflow = false
-
     self.ActiveElementCache = eles2
-
     return eles2
 end
 
