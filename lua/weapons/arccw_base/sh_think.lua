@@ -184,7 +184,7 @@ do
 
         local sighted = state == ArcCW.STATE_SIGHTS
     
-        if self:GetBuff_Hook("Hook_ShouldNotSight") and (self.Sighted or sighted) then
+        if self.dt.Holster_Time > 0 or self:GetBuff_Hook("Hook_ShouldNotSight") and (self.Sighted or sighted) then
             self:ExitSights()
         else
     
