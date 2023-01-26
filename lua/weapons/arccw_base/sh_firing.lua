@@ -237,7 +237,7 @@ function SWEP:PrimaryAttack()
         Src = src,
         Spread = Vector(0,0,0),
         Damage = 0,
-        Nume = 0,
+        Num = num,
         Force = self:GetBuff("Force", true) or math.Clamp( ( (50 / sglove) / ( (damage + self:GetBuff("DamageMin")) / (num * 2) ) ) * sglove, 1, 3 ),
         Distance = self:GetBuff("Distance", true) or 33300,
         HullSize = self:GetBuff("HullSize"),
@@ -319,6 +319,7 @@ function SWEP:PrimaryAttack()
         end
     else
         if !bullet then return end
+        if !bullet.Num then bullet.Num = 1 end
         local noRandSpread = self:GetBuff_Override("Override_NoRandSpread", self.NoRandSpread)
         local dirry = Vector(dir)
         for n = 1, bullet.Num do 
