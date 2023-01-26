@@ -319,9 +319,6 @@ function SWEP:PrimaryAttack()
         end
     else
         if !bullet then return end
-        if bullet.Num == nil or bullet.Num >= 1 then
-            bullet.Num = 1
-        end
         local noRandSpread = self:GetBuff_Override("Override_NoRandSpread", self.NoRandSpread)
         local dirry = Vector(dir)
         for n = 1, bullet.Num do 
