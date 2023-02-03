@@ -82,12 +82,13 @@ function SWEP:PlaySoundTable(soundtable, mult, start, key)
     --if CLIENT and game.SinglePlayer() then return end
 
     local owner = self:GetOwner()
+    if not (IsValid(self) and IsValid(owner)) then return end
 
     start = start or 0
     mult  = 1 / (mult or 1)
 
     for _, v in pairs(soundtable) do
-        if table.IsEmpty(v) then continue end
+        if not next(v) then continue end
 
         local ttime
         if v.t then
@@ -96,7 +97,6 @@ function SWEP:PlaySoundTable(soundtable, mult, start, key)
             continue
         end
         if ttime < 0 then continue end
-        if !(IsValid(self) and IsValid(owner)) then continue end
 
         local jhon = CurTime() + ttime
 

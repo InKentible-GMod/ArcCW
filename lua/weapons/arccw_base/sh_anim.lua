@@ -246,8 +246,7 @@ do
         end
 
         if not (isSingleplayer and CLIENT) then
-            -- self.EventTable = {}
-            if isSingleplayer or (!isSingleplayer and isFirstTimePredicted) then
+            if isSingleplayer or isFirstTimePredicted then
                 self:PlaySoundTable(anim.SoundTable or {}, 1 / mult, startfrom, key)
             end
         end
