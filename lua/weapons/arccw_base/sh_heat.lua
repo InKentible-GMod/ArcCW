@@ -72,18 +72,18 @@ end
 
 function SWEP:DoHeat()
     if self.NextHeatDissipateTime > CurTime() then return end
+    local heatLocked = self.dt.HeatLocked
+    if self.Heat <= 0 and not heatLocked then
+        return
+    end
 
-    --local diss = self.HeatDissipation or 2
-    --diss = diss * self:GetBuff_Mult("Mult_HeatDissipation")
     local diss = self:GetBuff("HeatDissipation") or 2
-    local ft = FrameTime()
-    self.Heat = self:GetHeat() - (ft * diss)
+    local heat = math.max(self:GetHeat() - (FrameTime() * diss), 0)
 
-    self.Heat = math.max(self.Heat, 0)
+    self.Heat = heat
+    self:SetHeat(heat)
 
-    self:SetHeat(self.Heat)
-
-    if self.Heat <= 0 and self:GetHeatLocked() then
+    if heat <= 0 and heatLocked then
         self:SetHeatLocked(false)
     end
 end
