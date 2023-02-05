@@ -993,8 +993,8 @@ function SWEP:SetGrenadeAlt(d)
 end
 
 function SWEP:GetGrenadeAlt()
-    if !self.Throwing then return false end
-    return self:GetNeedCycle()
+    if not self.Throwing then return false end
+    return self.dt.NeedCycle
 end
 
 function SWEP:SetPriorityAnim(v)
