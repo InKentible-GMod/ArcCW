@@ -71,6 +71,54 @@ do
     local blue = Color(50, 50, 255, 255)
     local green = Color(50, 255, 50, 255)
 
+    local arccw_crosshair_static = GetConVar("arccw_crosshair_static")
+    local arccw_crosshair_dot = GetConVar("arccw_crosshair_dot")
+    local arccw_crosshair_prong_top = GetConVar("arccw_crosshair_prong_top")
+    local arccw_crosshair_prong_left = GetConVar("arccw_crosshair_prong_left")
+    local arccw_crosshair_prong_right = GetConVar("arccw_crosshair_prong_right")
+    local arccw_crosshair_prong_bottom = GetConVar("arccw_crosshair_prong_bottom")
+    local arccw_crosshair_length = GetConVar("arccw_crosshair_length")
+    local arccw_crosshair_thickness = GetConVar("arccw_crosshair_thickness")
+    local arccw_crosshair_outline = GetConVar("arccw_crosshair_outline")
+    local arccw_crosshair_tilt = GetConVar("arccw_crosshair_tilt")
+    local arccw_crosshair_clr_r = GetConVar("arccw_crosshair_clr_r")
+    local arccw_crosshair_clr_g = GetConVar("arccw_crosshair_clr_g")
+    local arccw_crosshair_clr_b = GetConVar("arccw_crosshair_clr_b")
+    local arccw_crosshair_clr_a = GetConVar("arccw_crosshair_clr_a")
+
+    local arccw_crosshair_aa = GetConVar("arccw_crosshair_aa")
+    local arccw_aimassist = GetConVar("arccw_aimassist")
+    local arccw_aimassist_cl = GetConVar("arccw_aimassist_cl")
+
+    local arccw_crosshair_outline_r = GetConVar("arccw_crosshair_outline_r")
+    local arccw_crosshair_outline_g = GetConVar("arccw_crosshair_outline_g")
+    local arccw_crosshair_outline_b = GetConVar("arccw_crosshair_outline_b")
+    local arccw_crosshair_outline_a = GetConVar("arccw_crosshair_outline_a")
+
+    local arccw_crosshair_gap = GetConVar("arccw_crosshair_gap")
+    local arccw_crosshair_trueaim = GetConVar("arccw_crosshair_trueaim")
+    local arccw_crosshair_equip = GetConVar("arccw_crosshair_equip")
+    local arccw_crosshair_shotgun = GetConVar("arccw_crosshair_shotgun")
+    local arccw_crosshair_clump = GetConVar("arccw_crosshair_clump")
+    local arccw_crosshair_clump_always = GetConVar("arccw_crosshair_clump_always")
+    local arccw_crosshair_clump_outline = GetConVar("arccw_crosshair_clump_outline")
+
+    local CONVAR = FindMetaTable("ConVar")
+    local cvarGetBool = CONVAR.GetBool
+    local cvarGetInt = CONVAR.GetInt
+    local cvarGetFloat = CONVAR.GetFloat
+
+    -- to be modified
+    local clr = Color(0, 0, 0, 255)
+    local outlineClr = Color(0, 0, 0, 255)
+
+    local function copyColor(from, to)
+        to.r = from.r
+        to.g = from.g
+        to.b = from.b
+        to.a = from.a
+    end
+
     function SWEP:DoDrawCrosshair(x, y)
         local ply = LocalPlayer()
         local pos = ply:EyePos()
@@ -78,49 +126,51 @@ do
     
         if self:GetBuff_Hook("Hook_PreDrawCrosshair") then return end
     
-        local static = GetConVar("arccw_crosshair_static"):GetBool()
+        local static = cvarGetBool(arccw_crosshair_static)
     
-        local prong_dot = GetConVar("arccw_crosshair_dot"):GetBool()
-        local prong_top = GetConVar("arccw_crosshair_prong_top"):GetBool()
-        local prong_left = GetConVar("arccw_crosshair_prong_left"):GetBool()
-        local prong_right = GetConVar("arccw_crosshair_prong_right"):GetBool()
-        local prong_down = GetConVar("arccw_crosshair_prong_bottom"):GetBool()
+        local prong_dot = cvarGetBool(arccw_crosshair_dot)
+        local prong_top = cvarGetBool(arccw_crosshair_prong_top)
+        local prong_left = cvarGetBool(arccw_crosshair_prong_left)
+        local prong_right = cvarGetBool(arccw_crosshair_prong_right)
+        local prong_down = cvarGetBool(arccw_crosshair_prong_bottom)
+
+        local prong_len = cvarGetFloat(arccw_crosshair_length)
+        local prong_wid = cvarGetFloat(arccw_crosshair_thickness)
+        local prong_out = cvarGetInt(arccw_crosshair_outline)
+        local prong_tilt = cvarGetBool(arccw_crosshair_tilt)
+        
+        clr.r = cvarGetInt(arccw_crosshair_clr_r)
+        clr.g = cvarGetInt(arccw_crosshair_clr_g)
+        clr.b = cvarGetInt(arccw_crosshair_clr_b)
     
-        local prong_len = GetConVar("arccw_crosshair_length"):GetFloat()
-        local prong_wid = GetConVar("arccw_crosshair_thickness"):GetFloat()
-        local prong_out = GetConVar("arccw_crosshair_outline"):GetInt()
-        local prong_tilt = GetConVar("arccw_crosshair_tilt"):GetBool()
-    
-        local clr = Color(GetConVar("arccw_crosshair_clr_r"):GetInt(),
-                GetConVar("arccw_crosshair_clr_g"):GetInt(),
-                GetConVar("arccw_crosshair_clr_b"):GetInt())
-        if GetConVar("arccw_ttt_rolecrosshair") and GetConVar("arccw_ttt_rolecrosshair"):GetBool() then
+        local arccw_ttt_rolecrosshair = GetConVar("arccw_ttt_rolecrosshair")
+        if arccw_ttt_rolecrosshair and cvarGetBool(arccw_ttt_rolecrosshair) then
             local roundState = GetRoundState()
             if roundState == ROUND_PREP or roundState == ROUND_POST then
-                clr = white
+                copyColor(white, clr)
             elseif ply.GetRoleColor and ply:GetRoleColor() then
                 clr = ply:GetRoleColor() -- TTT2 feature
             elseif ply:IsActiveTraitor() then
-                clr = red
+                copyColor(red, clr)
             elseif ply:IsActiveDetective() then
-                clr = blue
+                copyColor(blue, clr)
             else
-                clr = green
+                copyColor(green, clr)
             end
         end
-        if GetConVar("arccw_crosshair_aa"):GetBool() and ply.ArcCW_AATarget != nil and GetConVar("arccw_aimassist"):GetBool() and GetConVar("arccw_aimassist_cl"):GetBool() then
+        if ply.ArcCW_AATarget != nil and cvarGetBool(arccw_crosshair_aa) and cvarGetBool(arccw_aimassist) and cvarGetBool(arccw_aimassist_cl) then
                 -- whooie
-            clr = red2
+            copyColor(red2, clr)
         end
-        clr.a = GetConVar("arccw_crosshair_clr_a"):GetInt()
-    
-        local outlineClr = Color(GetConVar("arccw_crosshair_outline_r"):GetInt(),
-                GetConVar("arccw_crosshair_outline_g"):GetInt(),
-                GetConVar("arccw_crosshair_outline_b"):GetInt(),
-                GetConVar("arccw_crosshair_outline_a"):GetInt())
+        clr.a = cvarGetInt(arccw_crosshair_clr_a)
+
+        outlineClr.r = cvarGetInt(arccw_crosshair_outline_r)
+        outlineClr.g = cvarGetInt(arccw_crosshair_outline_g)
+        outlineClr.b = cvarGetInt(arccw_crosshair_outline_b)
+        outlineClr.a = cvarGetInt(arccw_crosshair_outline_a)
     
         local gA, gD = self:GetFOVAcc( self:GetBuff("AccuracyMOA"), self:GetDispersion() )
-        local gap = (static and 8 or gD) * GetConVar("arccw_crosshair_gap"):GetFloat()
+        local gap = (static and 8 or gD) * cvarGetFloat(arccw_crosshair_gap)
     
         gap = gap + ( ScreenScale(8) * math.Clamp(self.RecoilAmount, 0, 1) )
     
@@ -176,7 +226,7 @@ do
             self.CrosshairDelta = math.Approach(self.CrosshairDelta or 0, 0, FrameTime() * 1 / st)
         end
     
-        if GetConVar("arccw_crosshair_equip"):GetBool() and (self:GetBuff("ShootEntity", true) or self.PrimaryBash) then
+        if cvarGetBool(arccw_crosshair_equip) and (self:GetBuff("ShootEntity", true) or self.PrimaryBash) then
             prong = ScreenScale(prong_wid)
             p_w = ScreenScale(prong_wid)
             p_w2 = p_w + prong_out
@@ -269,9 +319,9 @@ do
             end
         end
     
-        if GetConVar("arccw_crosshair_clump"):GetBool() and (GetConVar("arccw_crosshair_clump_always"):GetBool() or num > 1) then
+        if cvarGetBool(arccw_crosshair_clump) and (cvarGetBool(arccw_crosshair_clump_always) or num > 1) then
             local acc = math.max(1, gA)
-            if GetConVar("arccw_crosshair_clump_outline"):GetBool() then
+            if cvarGetBool(arccw_crosshair_clump_outline) then
                 surface.SetMaterial(clump_outer)
     
                 for i=1, prong_out do
