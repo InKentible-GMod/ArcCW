@@ -94,11 +94,11 @@ function SWEP:Deploy()
         self:SetupShields()
         -- Networking the weapon at this time is too early - entity is not yet valid on client
         -- Instead, make client send a request when it is valid there
-        --self:NetworkWeapon()
-    elseif CLIENT and !self.CertainAboutAtts then
-        net.Start("arccw_rqwpnnet")
-            net.WriteEntity(self)
-        net.SendToServer()
+        self:NetworkWeapon() -- No, in my testing it is valid at this point. The arccw_rqwpnnet net message is a timer with more steps anyways so this is faster
+    -- elseif CLIENT and !self.CertainAboutAtts then
+    --     net.Start("arccw_rqwpnnet")
+    --         net.WriteEntity(self)
+    --     net.SendToServer()
     end
 
     -- self:RefreshBGs()
