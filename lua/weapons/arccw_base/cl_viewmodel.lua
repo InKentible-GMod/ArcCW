@@ -411,8 +411,8 @@ function SWEP:GetViewModelPosition(pos, ang)
     local hpos, spos = self:GetBuff("HolsterPos", true), self:GetBuff("SprintPos", true)
     local hang, sang = self:GetBuff("HolsterAng", true), self:GetBuff("SprintAng", true)
     do
-        local aaaapos = holstered and (hpos or spos) or (spos or hpos)
-        local aaaaang = holstered and (hang or sang) or (sang or hang)
+        local aaaapos = holstered and (hpos or spos) or sprinted and (spos or hpos)
+        local aaaaang = holstered and (hang or sang) or sprinted and (sang or hang)
 
         local sd = (self:GetReloading() and 0) or (self:IsProne() and math.Clamp(owner:GetVelocity():Length() / prone.Config.MoveSpeed, 0, 1)) or (holstered and 1) or (!self:CanShootWhileSprint() and sprd) or 0
         sd = math.pow(math.sin(sd * math.pi * 0.5), 2)
@@ -429,8 +429,11 @@ function SWEP:GetViewModelPosition(pos, ang)
             jaffset = sprint_ang1
         end
 
-        LerpMod(target.pos, aaaapos, sd)
-        LerpMod(target.ang, aaaaang, sd, true)
+        if holstered or sprinted then
+            LerpMod(target.pos, aaaapos, sd)
+            LerpMod(target.ang, aaaaang, sd, true)
+        end
+
         for i = 1, 3 do
             target.pos[i] = target.pos[i] + joffset[i] * coolilove
             target.ang[i] = target.ang[i] + jaffset[i] * coolilove

@@ -192,18 +192,19 @@ do
                 local atttbl = ArcCW.AttachmentTable[k.Installed]
 
                 if !atttbl then continue end
-                local tblBuff = atttbl[buff]
 
-                if k.ToggleNum and atttbl.ToggleStats then                    
-                    local toggleNumStats = atttbl.ToggleStats[k.ToggleNum]
-    
-                    if isfunction(tblBuff) then
-                        buffHooksLen = buffHooksLen + 1
-                        buffHooks[buffHooksLen] = {tblBuff, atttbl[buffConcPriority] or 0}
-                    elseif atttbl.ToggleStats and k.ToggleNum and toggleNumStats and isfunction(toggleNumStats[buff]) then
-                        buffHooksLen = buffHooksLen + 1
-                        buffHooks[buffHooksLen] = {toggleNumStats[buff], toggleNumStats[buffConcPriority] or 0}
-                    end
+                local tblBuff = atttbl[buff]
+                local tglStats = atttbl.ToggleStats
+                local tglNum = k.ToggleNum
+
+                if isfunction(tblBuff) then
+                    buffHooksLen = buffHooksLen + 1
+                    buffHooks[buffHooksLen] = {tblBuff, atttbl[buff .. "_Priority"] or 0}
+                elseif tglStats and tglNum and tglStats[tglNum] and isfunction(tglStats[tglNum][buff]) then
+                    local toggleNumStats = tglStats[tglNum]
+
+                    buffHooksLen = buffHooksLen + 1
+                    buffHooks[buffHooksLen] = {toggleNumStats[buff], toggleNumStats[buff .. "_Priority"] or 0}
                 end
             end
 
@@ -664,11 +665,13 @@ function SWEP:GetActiveElements(recache)
 
         local num = i.ToggleNum or 1
         local toggleStats = atttbl.ToggleStats
+
         if toggleStats then
             local toggleStatsNum = atttbl.ToggleStats[num]
+
             if toggleStatsNum and toggleStatsNum.ActivateElements ~= nil then
                 local statsActivateElements = toggleStatsNum.ActivateElements
-                local statsActivateElementsLen = #activateElements
+                local statsActivateElementsLen = #statsActivateElements
     
                 for i = 1, statsActivateElementsLen do
                     eles[elesLen + i] = statsActivateElements[i]

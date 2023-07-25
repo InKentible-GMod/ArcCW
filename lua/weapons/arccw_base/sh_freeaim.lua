@@ -12,9 +12,11 @@ local math_cos = math.cos
 local ang0 = Angle(0, 0, 0)
 SWEP.ClientFreeAimAng = Angle(ang0)
 
+local FreeAimCVar = GetConVar("arccw_freeaim")
+
 function SWEP:ShouldFreeAim()
     if self:GetOwner():IsNPC() then return false end
-    if (GetConVar("arccw_freeaim"):GetInt() == 0 or self:GetBuff_Override("NeverFreeAim", self.NeverFreeAim))  and !self:GetBuff_Override("AlwaysFreeAim", self.AlwaysFreeAim) then return false end
+    if (FreeAimCVar:GetInt() == 0 or self:GetBuff_Override("NeverFreeAim", self.NeverFreeAim))  and !self:GetBuff_Override("AlwaysFreeAim", self.AlwaysFreeAim) then return false end
     return true
 end
 
@@ -46,11 +48,16 @@ do
             local freeaimang = lastAimAngle * 1
             local max = self:FreeAimMaxAngle()
 
-            local delta = math_min(self:GetSightDelta(),
-                    self:CanShootWhileSprint() and 1 or (1 - self:GetSprintDelta()),
-                    self:GetState() == ArcCW.STATE_CUSTOMIZE and 0 or 1)
+            local canshoot = self:CanShootWhileSprint()
+            local sightdelta = self:GetSightDelta()
+
+            local delta = math_min(sightdelta, canshoot and 1 or self:GetSprintDelta(), self:GetState() == ArcCW.STATE_CUSTOMIZE and 0 or 1)
     
-            angleMul(max, delta)
+            if isangle(max) then
+                angleMul(max, delta)
+            else
+                max = max * delta
+            end
 
             diff.p = normalizeAngle(diff.p)
             diff.y = normalizeAngle(diff.y)
