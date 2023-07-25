@@ -180,6 +180,8 @@ do
         debug.setmetatable(ent, mt)
     end
 
+    local CacheSoundsCVar = GetConVar("arccw_precache_crucialsounds_onfirsttake") 
+
     function SWEP:Initialize()
         local owner = self:GetOwner()
     
@@ -290,7 +292,10 @@ do
         self:AdjustAtts()
 
         CopyMetatable(self)
-    
+
+        if CLIENT and CacheSoundsCVar:GetBool() then
+            ArcCW.CacheWepSounds(self, self:GetClass(), false)
+        end
     end    
 end
 function SWEP:Holster(wep)
