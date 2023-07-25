@@ -66,6 +66,13 @@ end
 local inf = math.huge
 local minf = -inf
 
+local ClientAnim = {
+    ["draw"] = true, ["draw_empty"] = true, ["draw_jammed"] = true, ["draw_cocked"] = true,
+    ["holster"] = true, ["holster_empty"] = true, ["holster_jammed"] = true, ["holster_cocked"] = true,
+    ["ready"] = true, ["enter_inspect"] = true, ["exit_inspect"] = true,
+    ["1_to_2"] = true, ["2_to_1"] = true, ["2_to_3"] = true,
+}
+
 do
     local PLAYER = FindMetaTable("Player")
     local playerGetViewModel = PLAYER.GetViewModel
@@ -82,6 +89,10 @@ do
     local entityWorldToLocalAngles = ENTITY.WorldToLocalAngles
 
     local util_SharedRandom = util.SharedRandom
+
+    local function IsClientAnim(key)
+        return ClientAnim[key]
+    end
 
     function SWEP:PlayAnimation(key, mult, pred, startfrom, tt, skipholster, priority, absolute)
         mult = mult or 1
@@ -245,10 +256,8 @@ do
             end
         end
 
-        if not (isSingleplayer and CLIENT) then
-            if isSingleplayer or isFirstTimePredicted then
-                self:PlaySoundTable(anim.SoundTable or {}, 1 / mult, startfrom, key)
-            end
+        if !(isSingleplayer and CLIENT) and (isSingleplayer or isFirstTimePredicted) or IsClientAnim(key) then
+            self:PlaySoundTable(anim.SoundTable or {}, 1 / mult, startfrom, key)
         end
 
         if seq then
