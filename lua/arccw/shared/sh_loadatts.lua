@@ -259,6 +259,10 @@ elseif SERVER then
         file.Write("arccw_blacklist.txt", util.TableToJSON(ArcCW.AttachmentBlacklistTable))
         ArcCW_SendBlacklist()
     end)
+
+    hook.Add("PlayerDisconnected", "ArcCW_CleanAntiSpamTable", function(ply)
+        antiSpam[ply] = nil
+    end)
 end
 
 hook.Add("PostCleanupMap", "ArcCW_ReloadAttsDebug", function()
