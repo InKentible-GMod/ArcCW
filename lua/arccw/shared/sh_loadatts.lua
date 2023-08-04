@@ -216,6 +216,7 @@ if CLIENT then
         end
     end )
 elseif SERVER then
+    local bitNecessity = ArcCW.GetBitNecessity()
     net.Receive("arccw_reloadatts", function(len, ply)
         if !ply:IsSuperAdmin() then return end
 
@@ -227,13 +228,13 @@ elseif SERVER then
 
     local antiSpam = {}
     net.Receive("arccw_blacklist", function(len, ply)
-
         -- If this message is a request to get blacklist, send it and return
         local isRequest = net.ReadBool()
         if isRequest then
-            if antiSpam[ply] and antiSpam[ply] > CurTime() then return end
+            local now = CurTime()
+            if antiSpam[ply] and antiSpam[ply] > now then return end
             -- Debounce client request so they can't attempt to spam netmessages
-            antiSpam[ply] = CurTime() + 10
+            antiSpam[ply] = now + 10
 
             ArcCW_SendBlacklist(ply)
             return
@@ -242,10 +243,10 @@ elseif SERVER then
         end
 
         -- Server receives admin's changes to blacklist table
-        local amt = net.ReadUInt(ArcCW.GetBitNecessity())
+        local amt = net.ReadUInt(bitNecessity)
         ArcCW.AttachmentBlacklistTable = {}
         for i = 1, amt do
-            local id = net.ReadUInt(ArcCW.GetBitNecessity())
+            local id = net.ReadUInt(bitNecessity)
             local attName = ArcCW.AttachmentIDTable[id]
             if attName and ArcCW.AttachmentTable[attName] then
                 ArcCW.AttachmentBlacklistTable[attName] = true
