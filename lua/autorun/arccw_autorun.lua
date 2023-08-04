@@ -16,6 +16,7 @@ for _, v in ipairs(file.Find("arccw/client/*", "LUA")) do
     lcl("arccw/client/" .. v)
 end
 
+-- TODO: Remove SP check after upcoming June 2023 update
 if SERVER or game.SinglePlayer() then
     for _, v in ipairs(file.Find("arccw/server/*", "LUA")) do
         include("arccw/server/" .. v)
@@ -32,6 +33,7 @@ for _, v in ipairs(file.Find("arccw/mods/client/*", "LUA")) do
     lcl("arccw/mods/client/" .. v)
 end
 
+-- TODO: Remove SP check after upcoming June 2023 update
 if SERVER or game.SinglePlayer() then
     for _, v in ipairs(file.Find("arccw/mods/server/*", "LUA")) do
         include("arccw/mods/server/" .. v)
